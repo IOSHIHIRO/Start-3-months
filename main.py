@@ -1,6 +1,5 @@
 import asyncio
 from random import choice
-import webbrowser
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from dotenv import dotenv_values
@@ -39,8 +38,8 @@ async def random_handler(message: types.Message):
 
 @dp.message(Command('siteyoutube'))
 async def youtube_handler(message: types.Message):
-    await message.answer(f'Открываем видео')
-    webbrowser.open('https://youtube.com/playlist?list=PL0lO_mIqDDFUev1gp9yEwmwcy8SicqKbt&si=_dJeJZd8dxzp01em')
+    video_url = 'https://www.youtube.com/playlist?list=PL0lO_mIqDDFUev1gp9yEwmwcy8SicqKbt'
+    await message.answer(f'Ссылка на видео: {video_url}')
 
 
 @dp.message()
