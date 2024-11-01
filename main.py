@@ -13,14 +13,12 @@ user_id = set()
 
 @dp.message(Command("start"))
 async def start_handler(message: types.Message):
-
     nam_id = message.from_user.id
-    if nam_id not in user_id:
-        user_id.add(nam_id)
-        count_id = len(user_id)
-        name = message.from_user.first_name
-        msg = f"Привет, {name} наш бот обслуживает уже {count_id} пользователя"
-        await message.answer(msg)
+    user_id.add(nam_id)
+    count_id = len(user_id)
+    name = message.from_user.first_name
+    msg = f"Привет, {name} наш бот обслуживает уже {count_id} пользователя"
+    await message.answer(msg)
 
 @dp.message(Command('myinfo'))
 async def myinfo_handler(message: types.Message):
