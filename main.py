@@ -1,5 +1,5 @@
 import asyncio
-from random import choice
+import random
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from dotenv import dotenv_values
@@ -33,7 +33,7 @@ async def myinfo_handler(message: types.Message):
 
 @dp.message(Command('random'))
 async def random_handler(message: types.Message):
-    random_name = choice(names)
+    random_name = random.choice(names)
     await message.answer(f'Рандомное имя из списка {random_name}')
 
 @dp.message(Command('siteyoutube'))
