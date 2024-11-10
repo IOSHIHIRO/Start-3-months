@@ -156,4 +156,10 @@ async def extra_comments_us(message: types.Message, state: FSMContext):
     print(data)
     await state.clear()
 
+@review_router.callback_query(F.data == 'review')
+async def review_us(callback: types.CallbackQuery, state: FSMContext):
+    await state.set_state(RestourantReview.name)
+    await callback.message.answer('Как вас зовут')
+
+
 
