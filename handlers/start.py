@@ -3,9 +3,6 @@ from aiogram.filters import Command
 
 start_router = Router()
 user_id = set()
-names = ['Люси', 'Майн', 'Хюрезен']
-
-
 
 @start_router.message(Command("start"))
 async def start_handler(message: types.Message):
@@ -13,5 +10,9 @@ async def start_handler(message: types.Message):
     user_id.add(nam_id)
     count_id = len(user_id)
     name = message.from_user.first_name
-    msg = f"Привет, {name} наш бот обслуживает уже {count_id} пользователя"
+    msg = (f"Привет, {name} наш бот обслуживает уже {count_id} пользователя."
+           f"Выберите команды /menu, /geolocation /review")
+
+
+
     await message.answer(msg)
