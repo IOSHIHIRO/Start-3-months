@@ -75,6 +75,33 @@ async def process_opros(message: types.Message, state: FSMContext):
     await message.answer('Дата вашего посещения нашего заведения: ')
 
 
+# @review_router.message(RestourantReview.visit_date)
+# async def process_opros(message: types.Message, state: FSMContext):
+#     await state.update_data(visit_date=message.text)
+#     await state.set_state(RestourantReview.food_rating)
+#     vi_kd = types.ReplyKeyboardMarkup(
+#         keyboard=[
+#                 [types.KeyboardButton(text='плохо')],
+#                 [types.KeyboardButton(text='удовлетворительно')],
+#                 [types.KeyboardButton(text='хорошо')],
+#                 [types.KeyboardButton(text='отлично')],
+#         ],
+#         resize_keyboard=True,
+#     )
+#     await message.answer('Выберите оценку', reply_markup=vi_kd)
+#
+#
+# @review_router.message(RestourantReview.food_rating)
+# async def process_opros(message: types.Message, state: FSMContext):
+#     if message.text not in ['плохо','удовлетворительно','хорошо','отлично']:
+#         await message.answer('Выберите оценку')
+#         return
+#     await state.update_data(food_rating=message.text)
+#     await state.set_state(RestourantReview.cleanliness_rating)
+#     await message.answer(
+#         "Оцените чистоту нашего заведения", reply_markup=cleanliness_keyboard()
+#     )
+
 @review_router.message(RestourantReview.visit_date)
 async def process_opros(message: types.Message, state: FSMContext):
     await state.update_data(visit_date=message.text)
