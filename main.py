@@ -1,11 +1,18 @@
 import asyncio
 import logging
-from bot_cod import bot, dp
+
+from bot_cod import bot, dp, database
 from handlers.start import start_router
 from handlers.menu import menu_router
 from handlers.geolocation import geolocation_router
 from handlers.review_dialog import review_router
 from handlers.other_messages import other_messages_router
+
+
+
+async def on_startup(bot):
+    database.create_tables()
+
 
 
 async def main():
@@ -15,6 +22,7 @@ async def main():
     dp.include_router(review_router)
 
     dp.include_router(other_messages_router)
+    dp.startup.register(on_startup)
 
     await dp.start_polling(bot)
 

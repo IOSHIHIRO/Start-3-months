@@ -3,6 +3,8 @@ from aiogram.filters import Command
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 
+from bot_cod import database
+
 review_router = Router()
 
 class RestourantReview(StatesGroup):
@@ -19,26 +21,26 @@ def cleanliness_keyboard():
         inline_keyboard=[
             [
                 types.InlineKeyboardButton(
-                    text="5",
-                    callback_data="5"
+                    text="Плохо",
+                    callback_data="Плохо"
                 )
             ],
             [
                 types.InlineKeyboardButton(
-                    text="4",
-                    callback_data="4"
+                    text="Нормально",
+                    callback_data="Нормально"
                 )
             ],
             [
                 types.InlineKeyboardButton(
-                    text="3",
-                    callback_data="3"
+                    text="Хорошо",
+                    callback_data="Хорошо"
                 )
             ],
             [
                 types.InlineKeyboardButton(
-                    text="2",
-                    callback_data="2"
+                    text="Отлично",
+                    callback_data="Отлично"
                 )
             ]
         ]
@@ -75,33 +77,6 @@ async def process_opros(message: types.Message, state: FSMContext):
     await message.answer('Дата вашего посещения нашего заведения: ')
 
 
-# @review_router.message(RestourantReview.visit_date)
-# async def process_opros(message: types.Message, state: FSMContext):
-#     await state.update_data(visit_date=message.text)
-#     await state.set_state(RestourantReview.food_rating)
-#     vi_kd = types.ReplyKeyboardMarkup(
-#         keyboard=[
-#                 [types.KeyboardButton(text='плохо')],
-#                 [types.KeyboardButton(text='удовлетворительно')],
-#                 [types.KeyboardButton(text='хорошо')],
-#                 [types.KeyboardButton(text='отлично')],
-#         ],
-#         resize_keyboard=True,
-#     )
-#     await message.answer('Выберите оценку', reply_markup=vi_kd)
-#
-#
-# @review_router.message(RestourantReview.food_rating)
-# async def process_opros(message: types.Message, state: FSMContext):
-#     if message.text not in ['плохо','удовлетворительно','хорошо','отлично']:
-#         await message.answer('Выберите оценку')
-#         return
-#     await state.update_data(food_rating=message.text)
-#     await state.set_state(RestourantReview.cleanliness_rating)
-#     await message.answer(
-#         "Оцените чистоту нашего заведения", reply_markup=cleanliness_keyboard()
-#     )
-
 @review_router.message(RestourantReview.visit_date)
 async def process_opros(message: types.Message, state: FSMContext):
     await state.update_data(visit_date=message.text)
@@ -111,20 +86,20 @@ async def process_opros(message: types.Message, state: FSMContext):
         inline_keyboard=[
             [
                 types.InlineKeyboardButton(
-                    text='плохо',
-                    callback_data='badly'
+                    text='5',
+                    callback_data='5'
                 ),
                 types.InlineKeyboardButton(
-                    text='удовлетворительно',
-                    callback_data='satisfactorily'
+                    text='4',
+                    callback_data='4'
                 ),
                 types.InlineKeyboardButton(
-                    text='хорошо',
-                    callback_data='fine'
+                    text='3',
+                    callback_data='3'
                 ),
                 types.InlineKeyboardButton(
-                    text='отлично',
-                    callback_data='Great'
+                    text='2',
+                    callback_data='2'
                 )
             ]
         ]
@@ -132,71 +107,25 @@ async def process_opros(message: types.Message, state: FSMContext):
     await message.answer(msg, reply_markup=kd)
 
 
-@review_router.callback_query(F.data == 'badly')
+
+@review_router.callback_query(F.data.in_ (['5','4','3','2']),)
 async def badly_us(callback: types.CallbackQuery, state: FSMContext):
-    await state.update_data(food_rating="badly")
-    await callback.message.answer('Спасибо за отзыв')
+    await state.update_data(food_rating=callback.data)
     await state.set_state(RestourantReview.cleanliness_rating)
     await callback.message.answer("Оцените чистоту нашего заведения", reply_markup=cleanliness_keyboard())
 
-
-@review_router.callback_query(F.data == 'satisfactorily')
-async def badly_us(callback: types.CallbackQuery, state: FSMContext):
-    await state.update_data(food_rating="satisfactorily")
-    await callback.message.answer('Спасибо за отзыв')
-    await state.set_state(RestourantReview.cleanliness_rating)
-    await callback.message.answer("Оцените чистоту нашего заведения", reply_markup=cleanliness_keyboard())
+@review_router.callback_query(F.data.in_ (['Плохо','Нормально','Хорошо','Отлично']),)
+async def clen_us(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(cleanliness_rating=callback.data)
+    await state.set_state(RestourantReview.extra_comments)
+    await callback.message.answer('Напишите отзыв')
 
 
-@review_router.callback_query(F.data == 'fine')
-async def badly_us(callback: types.CallbackQuery, state: FSMContext):
-    await state.update_data(food_rating="fine")
-    await callback.message.answer('Спасибо за отзыв')
-    await state.set_state(RestourantReview.cleanliness_rating)
-    await callback.message.answer("Оцените чистоту нашего заведения", reply_markup=cleanliness_keyboard())
-
-
-@review_router.callback_query(F.data == 'Great')
-async def badly_us(callback: types.CallbackQuery, state: FSMContext):
-    await state.update_data(food_rating="Great")
-    await callback.message.answer('Спасибо за отзыв')
-    await state.set_state(RestourantReview.cleanliness_rating)
-    await callback.message.answer("Оцените чистоту нашего заведения", reply_markup=cleanliness_keyboard())
-
-
-@review_router.message(RestourantReview.cleanliness_rating)
+@review_router.message(RestourantReview.food_rating)
 async def cleanliness_us(message: types.Message, state: FSMContext):
-    await state.update_data(cleanliness_rating=message.text)
-    await state.set_state(RestourantReview.extra_comments)
+    await state.update_data(food_rating=message.text)
+    await state.set_state(RestourantReview.cleanliness_rating)
     await message.answer('Как оцениваете чистоту заведения ')
-
-
-@review_router.callback_query(F.data == '5')
-async def badly_us(callback: types.CallbackQuery, state: FSMContext):
-    await state.update_data(cleanliness_rating='5')
-    await state.set_state(RestourantReview.extra_comments)
-    await callback.message.answer("Напишите комментарий нашему ресторану")
-
-
-@review_router.callback_query(F.data == '4')
-async def badly_us(callback: types.CallbackQuery, state: FSMContext):
-    await state.update_data(cleanliness_rating='4')
-    await state.set_state(RestourantReview.extra_comments)
-    await callback.message.answer("Напишите комментарий нашему ресторану")
-
-
-@review_router.callback_query(F.data == '3')
-async def badly_us(callback: types.CallbackQuery, state: FSMContext):
-    await state.update_data(cleanliness_rating='3')
-    await state.set_state(RestourantReview.extra_comments)
-    await callback.message.answer("Напишите комментарий нашему ресторану: ")
-
-
-@review_router.callback_query(F.data == '2')
-async def badly_us(callback: types.CallbackQuery, state: FSMContext):
-    await state.update_data(cleanliness_rating='2')
-    await state.set_state(RestourantReview.extra_comments)
-    await callback.message.answer("Напишите комментарий нашему ресторану: ")
 
 
 @review_router.message(RestourantReview.extra_comments)
@@ -205,6 +134,14 @@ async def extra_comments_us(message: types.Message, state: FSMContext):
     await message.answer('Спасибо за отзыв!')
     data = await state.get_data()
     print(data)
+    database.execute(
+        query="""
+          INSERT INTO survey_results (name, phone_number, visit_date, food_rating, cleanliness_rating, extra_comments)
+          VALUES (?,?,?,?,?,?)
+          """,
+        params=(data['name'], data['phone_number'], data['visit_date'], data['food_rating'], data['cleanliness_rating'], data['extra_comments'])
+    )
+
     await state.clear()
 
 
@@ -212,4 +149,58 @@ async def extra_comments_us(message: types.Message, state: FSMContext):
 async def review_us(callback: types.CallbackQuery, state: FSMContext):
     await state.set_state(RestourantReview.name)
     await callback.message.answer('Как вас зовут?')
+
+
+# @review_router.callback_query(F.data == '4')
+# async def badly_us(callback: types.CallbackQuery, state: FSMContext):
+#     await state.update_data(cleanliness_rating='4')
+#     await state.set_state(RestourantReview.cleanliness_rating)
+#     await callback.message.answer("Напишите комментарий нашему ресторану")
+#
+#
+# @review_router.callback_query(F.data == '3')
+# async def badly_us(callback: types.CallbackQuery, state: FSMContext):
+#     await state.update_data(cleanliness_rating='3')
+#     await state.set_state(RestourantReview.cleanliness_rating)
+#     await callback.message.answer("Напишите комментарий нашему ресторану: ")
+#
+#
+# @review_router.callback_query(F.data == '2')
+# async def badly_us(callback: types.CallbackQuery, state: FSMContext):
+#     await state.update_data(cleanliness_rating='2')
+#     await state.set_state(RestourantReview.cleanliness_rating)
+#     await callback.message.answer("Напишите комментарий нашему ресторану: ")
+
+
+# @review_router.callback_query(F.data == 'badly')
+# async def badly_us(callback: types.CallbackQuery, state: FSMContext):
+#     await state.update_data(food_rating="badly")
+#     await callback.message.answer('Спасибо за отзыв')
+#     await state.set_state(RestourantReview.cleanliness_rating)
+#     await callback.message.answer("Оцените чистоту нашего заведения", reply_markup=cleanliness_keyboard())
+#
+#
+# @review_router.callback_query(F.data == 'satisfactorily')
+# async def badly_us(callback: types.CallbackQuery, state: FSMContext):
+#     await state.update_data(food_rating="satisfactorily")
+#     await callback.message.answer('Спасибо за отзыв')
+#     await state.set_state(RestourantReview.cleanliness_rating)
+#     await callback.message.answer("Оцените чистоту нашего заведения", reply_markup=cleanliness_keyboard())
+#
+#
+# @review_router.callback_query(F.data == 'fine')
+# async def badly_us(callback: types.CallbackQuery, state: FSMContext):
+#     await state.update_data(food_rating="fine")
+#     await callback.message.answer('Спасибо за отзыв')
+#     await state.set_state(RestourantReview.cleanliness_rating)
+#     await callback.message.answer("Оцените чистоту нашего заведения", reply_markup=cleanliness_keyboard())
+#
+#
+# @review_router.callback_query(F.data == 'Great')
+# async def badly_us(callback: types.CallbackQuery, state: FSMContext):
+#     await state.update_data(food_rating="Great")
+#     await callback.message.answer('Спасибо за отзыв')
+#     await state.set_state(RestourantReview.cleanliness_rating)
+#     await callback.message.answer()
+
 
