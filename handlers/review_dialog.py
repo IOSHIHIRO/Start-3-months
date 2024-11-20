@@ -1,6 +1,6 @@
 from aiogram import Router, F, types
 from aiogram.filters import Command
-from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.state import State, StatesGroup, default_state
 from aiogram.fsm.context import FSMContext
 
 from bot_cod import database
@@ -47,7 +47,7 @@ def cleanliness_keyboard():
     )
 
 
-@review_router.message(Command('review'))
+@review_router.message(Command('review'), default_state)
 async def start_opros(message: types.Message, state: FSMContext):
     await state.set_state(RestourantReview.name)
     await message.answer('Как вас зовут? ')
@@ -105,7 +105,6 @@ async def process_opros(message: types.Message, state: FSMContext):
         ]
     )
     await message.answer(msg, reply_markup=kd)
-
 
 
 @review_router.callback_query(F.data.in_ (['5','4','3','2']),)
