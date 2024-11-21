@@ -45,5 +45,5 @@ async def create_dish(message: types.Message, state: FSMContext):
         params=(data['name'], data['price'], data['recipe']),
     )
     await state.clear()
-    await message.answer('Блюдо добавленоlihkjmn')
+    await message.answer('Блюдо добавленоlihkjmnyj')
 
