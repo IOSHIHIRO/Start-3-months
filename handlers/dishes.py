@@ -14,4 +14,5 @@ async def dishes(message: types.Message):
     pprint(dishes_all)
     await message.answer("Блюдо из католога: ")
     for dish in dishes_all:
-        await message.answer(f'Название: {dish["name"]} \n Цена: {dish["price"]}')
+        await message.answer(f'Название: {dish["name"]} \n Цена: {dish["price"]} '
+                             f'\n категория: {dish["category"]}')

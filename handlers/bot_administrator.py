@@ -13,11 +13,31 @@ bot_administrator_router.message.filter(
 class Admin(StatesGroup):
     name = State()
     price = State()
-    recipe = State()
+    category = State()
+
+class Category(StatesGroup):
+    name = State()
+
+@bot_administrator_router.message(Command("newcategory"))
+async def create_new_category(message: types.Message, state: FSMContext):
+    await state.set_state(Category.name)
+    await message.answer("Задайте категорию блюда:")
+
+@bot_administrator_router.message(Category.name)
+async def process_name(message: types.Message, state: FSMContext):
+    new_categories = message.text
+    database.execute(
+    query="""
+        INSERT INTO dish_categories(name) VALUES(?)
+    """,
+        params=(new_categories,)
+    )
+    await message.answer("Категория добавлен")
+    await state.clear()
+
 
 @bot_administrator_router.message(Command("dish"), default_state)
 async def create_dish(message: types.Message, state: FSMContext):
-    print(message.from_user.id)
     await  state.set_state(Admin.name)
     await  message.answer('Задайте название блюдо: ')
 
@@ -30,20 +50,30 @@ async def create_dish(message: types.Message, state: FSMContext):
 @bot_administrator_router.message(Admin.price)
 async def create_dish(message: types.Message, state: FSMContext):
     await state.update_data(price=message.text)
-    await state.set_state(Admin.recipe)
-    await message.answer('Задайте рецепт: ')
+    all_categories = database.fetch("SELECT * FROM dish_categories")
+    if not all_categories:
+        await message.answer("Нет категории")
+        state.clear()
+        return
+    kd = types.ReplyKeyboardMarkup(
+        keyboard=[
+            [types.KeyboardButton(text=category["name"]) for category in all_categories]
+        ]
+    )
+    await state.set_state(Admin.category)
+    await message.answer('Задайте категорию:', reply_markup=kd)
 
-@bot_administrator_router.message(Admin.recipe)
+@bot_administrator_router.message(Admin.category)
 async def create_dish(message: types.Message, state: FSMContext):
-    await state.update_data(recipe=message.text)
+    await state.update_data(category=message.text)
 
     data = await state.get_data()
     database.execute(
         query="""
-        INSERT INTO dishes(name, price, recipe) VALUES (?,?,?)
+        INSERT INTO dishes(name, price, category) VALUES (?,?,?)
         """,
-        params=(data['name'], data['price'], data['recipe']),
+        params=(data['name'], data['price'], data['category']),
     )
     await state.clear()
-    await message.answer('Блюдо добавленоlihkjmnyj')
+    await message.answer('Блюдо добавлено')
 
