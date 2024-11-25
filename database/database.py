@@ -33,8 +33,8 @@ class Database:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT,
                 price INTEGER,
-                category INTEGER,
-                FOREIGN KEY(category) REFERENCES dishes(category_id)
+                category_id INTEGER,
+                FOREIGN KEY (category_id) REFERENCES dish_categories(id)
                 )
                 """
             )

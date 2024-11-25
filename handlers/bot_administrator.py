@@ -65,12 +65,20 @@ async def create_dish(message: types.Message, state: FSMContext):
 
 @bot_administrator_router.message(Admin.category)
 async def create_dish(message: types.Message, state: FSMContext):
-    await state.update_data(category=message.text)
+    print(message.text)
+    category = database.fetch(
+        query="SELECT * FROM dish_categories WHERE name = ?",
+        params=(message.text,)
+    )
+    if not category:
+        await message.answer("Вы напечатали неуществующий в базе данных категория")
+        return
+    await state.update_data(category=category[0]["id"])
 
     data = await state.get_data()
     database.execute(
         query="""
-        INSERT INTO dishes(name, price, category) VALUES (?,?,?)
+        INSERT INTO dishes(name, price, category_id) VALUES (?,?,?)
         """,
         params=(data['name'], data['price'], data['category']),
     )
