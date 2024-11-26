@@ -9,6 +9,9 @@ bot_administrator_router = Router()
 bot_administrator_router.message.filter(
     F.from_user.id == 1627653043
 )
+bot_administrator_router.callback_query.filter(
+    F.from_user.id == 1627653043
+)
 
 class Admin(StatesGroup):
     name = State()
